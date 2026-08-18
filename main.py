@@ -1,15 +1,17 @@
-import requests
+from scrapers.parser import parse_igaming, save_json
 
-print("Regulatory Monitor")
-print("------------------")
+print("=" * 60)
+print("Pennsylvania Regulatory Monitor")
+print("=" * 60)
 
-url = "https://gamingcontrolboard.pa.gov"
+print("Parsing iGaming report...")
 
-response = requests.get(url)
+records = parse_igaming(
+    "downloads/Application_Status_iGaming_Operator.pdf"
+)
 
-print(f"Status Code: {response.status_code}")
+print(f"✓ Extracted {len(records)} records")
 
-if response.status_code == 200:
-    print("✅ Connected to PGCB!")
-else:
-    print("❌ Could not connect.")
+save_json(records, "igaming.json")
+
+print("✓ Saved snapshots/igaming.json")
