@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
 
   schedule:
-    # 9:05 AM Eastern Daylight Time (13:05 UTC)
+    # 9:05 AM Eastern (13:05 UTC during EDT)
     - cron: "5 13 * * 1-5"
 
-    # 5:05 PM Eastern Daylight Time (21:05 UTC)
+    # 5:05 PM Eastern (21:05 UTC during EDT)
     - cron: "5 21 * * 1-5"
 
 jobs:
@@ -28,11 +28,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run monitor
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: |
-          python main.py
       - name: Run monitor
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
