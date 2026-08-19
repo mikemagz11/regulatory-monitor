@@ -1,14 +1,15 @@
-import yaml
-
-
-with open("config/watchlist.yml", "r", encoding="utf-8") as f:
-    CONFIG = yaml.safe_load(f)
-
-ALIASES = CONFIG["hard_rock_aliases"]
+HARD_ROCK_ALIASES = [
+    "Seminole Hard Rock Digital, LLC",
+    "Hard Rock Interactive",
+    "Hard Rock Digital",
+    "Seminole Hard Rock",
+    "Seminole Gaming",
+    "Seminole Tribe",
+    "Hard Rock",
+]
 
 
 def find_matches(records):
-
     matches = []
 
     for record in records:
@@ -18,7 +19,7 @@ def find_matches(records):
             f"{record.get('applicant', '')}"
         ).lower()
 
-        for alias in ALIASES:
+        for alias in HARD_ROCK_ALIASES:
 
             if alias.lower() in searchable:
 

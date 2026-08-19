@@ -3,11 +3,11 @@ import requests
 from bs4 import BeautifulSoup
 
 PAGE_URL = "https://gamingcontrolboard.pa.gov/licensing/application-status-report"
-
 DOWNLOAD_DIR = "downloads"
+TARGET_FILE = "Application_Status_iGaming_Operator.pdf"
 
 
-def download_application_reports():
+def download_application_report():
     print("Connecting to PGCB...")
 
     response = requests.get(PAGE_URL, timeout=30)
@@ -15,31 +15,35 @@ def download_application_reports():
 
     soup = BeautifulSoup(response.text, "html.parser")
 
-    links = soup.find_all("a")
-
-    pdfs = []
-
-    for link in links:
-        href = link.get("href")
-
-        if href and ".pdf" in href.lower():
-            if href.startswith("/"):
-                href = "https://gamingcontrolboard.pa.gov" + href
-
-            pdfs.append((link.text.strip(), href))
-
-    print(f"Found {len(pdfs)} PDF links")
-
     os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
-    for name, url in pdfs:
-        filename = url.split("/")[-1]
+    for link in soup.find_all("a"):
 
-        print(f"Downloading {filename}")
+        href = link.get("href")
 
-        pdf = requests.get(url, timeout=60)
+        if not href:
+            continue
 
-        with open(os.path.join(DOWNLOAD_DIR, filename), "wb") as f:
+        if TARGET_FILE not in href:
+            continue
+
+        if href.startswith("/"):
+            href = "https://gamingcontrolboard.pa.gov" + href
+
+        print("Downloading latest iGaming report...")
+
+        pdf = requests.get(href, timeout=60)
+        pdf.raise_for_status()
+
+        with open(
+            os.path.join(DOWNLOAD_DIR, TARGET_FILE),
+            "wb",
+        ) as f:
+
             f.write(pdf.content)
 
-    print("Done!")
+        print("✓ Latest iGaming report downloaded")
+
+        return
+
+    raise Exception("Could not find iGaming report on PGCB website.")

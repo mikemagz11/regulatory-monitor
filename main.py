@@ -1,65 +1,98 @@
-from scrapers.downloader import download_application_reports
+from datetime import datetime
+
+from scrapers.downloader import download_application_report
 from scrapers.parser import parse_application_report
 from scrapers.hardrock import find_matches
 from scrapers.slack import send_slack
 
 PDF = "downloads/Application_Status_iGaming_Operator.pdf"
+SOURCE_URL = "https://gamingcontrolboard.pa.gov/licensing/application-status-report"
+
+run_time = datetime.now().strftime("%B %d, %Y | %I:%M %p")
 
 print("=" * 60)
-print("PGCB Hard Rock Monitor")
+print("PGCB Competitive Intelligence Monitor")
 print("=" * 60)
 
-print("Downloading latest PGCB reports...")
-download_application_reports()
+print("📥 Downloading latest PGCB iGaming report...")
+download_application_report()
 
-print("Parsing iGaming report...")
+print("📄 Parsing report...")
 records = parse_application_report(PDF)
 
-print(f"✓ Parsed {len(records)} records")
+print(f"✓ Parsed {len(records)} licensing records")
 
-print("Searching for Hard Rock aliases...")
+print("🔍 Searching for Hard Rock aliases...")
 matches = find_matches(records)
 
 print(f"✓ Found {len(matches)} matching records")
 
-if len(matches) == 0:
+if not matches:
 
-    message = f"""✅ *PGCB Hard Rock Monitor*
+    message = f"""
+🟢 *PGCB Competitive Intelligence Monitor*
 
-Report Checked:
-• Application Status – iGaming Operator
+No Hard Rock-related activity detected.
 
-Records Parsed:
-{len(records)}
+📄 *Report:* Application Status – iGaming Operator
+📊 *Licensing Records Checked:* {len(records)}
+🕒 *Run Time:* {run_time} ET
 
-Result:
-No Hard Rock activity detected.
+🔗 *Official Source*
+{SOURCE_URL}
 """
 
 else:
 
-    message = "🚨 *PGCB HARD ROCK ALERT*\n\n"
+    message = f"""
+🚨 *PGCB COMPETITIVE INTELLIGENCE ALERT*
+
+Hard Rock-related activity detected.
+
+🕒 *Run Time:* {run_time} ET
+
+"""
 
     for match in matches:
 
-        message += f"""Entity:
-{match['entity']}
+        message += f"""
+🏢 *Entity*
+{match["entity"]}
 
-Applicant:
-{match['applicant']}
+🎯 *Matched Alias*
+{match["matched_alias"]}
 
-Section:
-{match['section']}
+👤 *Applicant*
+{match["applicant"]}
 
-Status:
-{match['status']}
+📋 *Status*
+{match["status"] or "Not Available"}
 
---------------------------------
+📂 *Section*
+{match["section"]}
 
+"""
+
+        if match.get("status_date"):
+            message += f"""📅 *Status Date*
+{match["status_date"]}
+
+"""
+
+        if match.get("expiration_date"):
+            message += f"""⏳ *Expiration Date*
+{match["expiration_date"]}
+
+"""
+
+    message += f"""
+🔗 *Official Source*
+{SOURCE_URL}
 """
 
 send_slack(message)
 
 print()
-print("Slack notification sent.")
+print("=" * 60)
+print("✅ Competitive Intelligence Monitor completed successfully.")
 print("=" * 60)
