@@ -12,6 +12,7 @@ pillow==11.3.0
 pycparser==2.23
 pypdfium2==5.13.0
 python-dateutil==2.9.0.post0
+python-dotenv==1.2.1
 pytz==2026.3.post1
 PyYAML==6.0.3
 RapidFuzz==3.13.0

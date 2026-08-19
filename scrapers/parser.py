@@ -56,7 +56,7 @@ def parse_record(line):
     }
 
 
-def parse_igaming(pdf_path):
+def parse_application_report(pdf_path):
     """
     Parse the PGCB iGaming Application Status Report.
     """
